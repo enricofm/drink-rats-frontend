@@ -7,8 +7,8 @@ import {
   StyleSheet,
   Image,
   ScrollView,
-  Alert,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +18,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/services/api';
 import { validateName } from '@/utils/validation';
 import { theme } from '@/theme/theme';
+import { Toast } from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
 
 export default function ProfileScreen() {
   const { user, token, logout, updateUser } = useAuth();
@@ -26,12 +28,13 @@ export default function ProfileScreen() {
   const [avatar, setAvatar] = useState(user?.avatar);
   const [nameError, setNameError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { toast, showToast, hideToast } = useToast();
 
   const handlePickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please grant photo library access');
+      showToast('Permissão necessária para acessar a galeria', 'warning');
       return;
     }
 
@@ -59,20 +62,20 @@ export default function ProfileScreen() {
       const updatedUser = await api.updateProfile({ name, avatar }, token!);
       updateUser(updatedUser);
       setIsEditing(false);
-      Alert.alert('Success', 'Profile updated successfully');
+      showToast('Perfil atualizado com sucesso!', 'success');
     } catch (error) {
       console.error('Failed to update profile:', error);
-      Alert.alert('Error', 'Failed to update profile');
+      showToast('Erro ao atualizar perfil', 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('Sair', 'Tem certeza que deseja sair?', [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Logout',
+        text: 'Sair',
         style: 'destructive',
         onPress: () => {
           logout();
@@ -82,13 +85,14 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.avatarContainer}>
         <Image
           source={{ uri: avatar || 'https://i.pravatar.cc/150' }}
           style={styles.avatar}
           accessible
-          accessibilityLabel="Profile avatar"
+          accessibilityLabel="Avatar do perfil"
         />
         {isEditing && (
           <TouchableOpacity
@@ -96,7 +100,7 @@ export default function ProfileScreen() {
             onPress={handlePickImage}
             accessible
             accessibilityRole="button"
-            accessibilityLabel="Change profile picture"
+            accessibilityLabel="Alterar foto de perfil"
           >
             <Ionicons name="camera" size={20} color={theme.colors.white} />
           </TouchableOpacity>
@@ -106,26 +110,26 @@ export default function ProfileScreen() {
       {isEditing ? (
         <View style={styles.form}>
           <Input
-            label="Name"
+            label="Nome"
             value={name}
             onChangeText={(text) => {
               setName(text);
               setNameError('');
             }}
             error={nameError}
-            placeholder="Your name"
+            placeholder="Seu nome"
           />
 
           <View style={styles.buttonGroup}>
             <Button
-              title="Save"
+              title="Salvar"
               onPress={handleSave}
               loading={isLoading}
               variant="primary"
               style={styles.button}
             />
             <Button
-              title="Cancel"
+              title="Cancelar"
               onPress={() => {
                 setIsEditing(false);
                 setName(user?.name || '');
@@ -143,7 +147,7 @@ export default function ProfileScreen() {
           <Text style={styles.email}>{user?.email}</Text>
 
           <Button
-            title="Edit Profile"
+            title="Editar Perfil"
             onPress={() => setIsEditing(true)}
             variant="primary"
             fullWidth
@@ -153,15 +157,21 @@ export default function ProfileScreen() {
       )}
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account</Text>
         <Button
-          title="Logout"
+          title="Sair da conta"
           onPress={handleLogout}
           variant="outline"
           fullWidth
         />
       </View>
     </ScrollView>
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        visible={toast.visible}
+        onHide={hideToast}
+      />
+    </>
   );
 }
 

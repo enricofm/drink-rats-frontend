@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Input } from '@/components/Input';
@@ -16,6 +15,8 @@ import { Button } from '@/components/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { validateRegisterForm } from '@/utils/validation';
 import { theme } from '@/theme/theme';
+import { Toast } from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const { toast, showToast, hideToast } = useToast();
 
   const handleRegister = async () => {
     const validation = validateRegisterForm(name, email, password);
@@ -39,11 +41,23 @@ export default function RegisterScreen() {
 
     try {
       await register(name, email, password);
-      router.replace('/(tabs)');
-    } catch (error: unknown) {
+      showToast('Conta criada com sucesso!', 'success');
+      setTimeout(() => router.replace('/(tabs)'), 500);
+    } catch (error: any) {
       console.error('Registration error:', error);
-      const message = error instanceof Error ? error.message : String(error);
-      Alert.alert('Registration Failed', message || 'Please try again');
+      let message = 'Erro ao criar conta. Tente novamente';
+      
+      if (error?.message) {
+        if (error.message.includes('409') || error.message.includes('já existe')) {
+          message = 'Este email já está cadastrado';
+        } else if (error.message.includes('400')) {
+          message = 'Dados inválidos. Verifique os campos';
+        } else if (error.message.includes('500')) {
+          message = 'Erro no servidor. Tente novamente mais tarde';
+        }
+      }
+      
+      showToast(message, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -59,12 +73,12 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.content}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join the DrinkRats community</Text>
+          <Text style={styles.title}>Criar Conta</Text>
+          <Text style={styles.subtitle}>Junte-se à comunidade DrinkRats</Text>
 
           <View style={styles.form}>
             <Input
-              label="Name"
+              label="Nome"
               value={name}
               onChangeText={(text) => {
                 setName(text);
@@ -74,8 +88,8 @@ export default function RegisterScreen() {
               autoCapitalize="words"
               autoComplete="name"
               textContentType="name"
-              placeholder="Your name"
-              accessibilityLabel="Name input"
+              placeholder="Seu nome"
+              accessibilityLabel="Campo de nome"
             />
 
             <Input
@@ -90,12 +104,12 @@ export default function RegisterScreen() {
               autoCapitalize="none"
               autoComplete="email"
               textContentType="emailAddress"
-              placeholder="your@email.com"
-              accessibilityLabel="Email input"
+              placeholder="seu@email.com"
+              accessibilityLabel="Campo de email"
             />
 
             <Input
-              label="Password"
+              label="Senha"
               value={password}
               onChangeText={(text) => {
                 setPassword(text);
@@ -107,11 +121,11 @@ export default function RegisterScreen() {
               autoComplete="password"
               textContentType="newPassword"
               placeholder="••••••••"
-              accessibilityLabel="Password input"
+              accessibilityLabel="Campo de senha"
             />
 
             <Button
-              title="Create Account"
+              title="Criar Conta"
               onPress={handleRegister}
               loading={isLoading}
               fullWidth
@@ -119,7 +133,7 @@ export default function RegisterScreen() {
             />
 
             <Button
-              title="Back to Login"
+              title="Voltar ao Login"
               onPress={() => router.back()}
               fullWidth
               variant="outline"
@@ -128,6 +142,12 @@ export default function RegisterScreen() {
           </View>
         </View>
       </ScrollView>
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        visible={toast.visible}
+        onHide={hideToast}
+      />
     </KeyboardAvoidingView>
   );
 }

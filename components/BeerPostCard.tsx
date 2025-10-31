@@ -35,7 +35,7 @@ export const BeerPostCard: React.FC<BeerPostCardProps> = ({ post }) => {
         />
         <View style={styles.headerText}>
           <Text style={styles.userName}>{post.userName}</Text>
-          <Text style={styles.timestamp}>{new Date(post.createdAt).toLocaleDateString()}</Text>
+          <Text style={styles.timestamp}>{new Date(post.createdAt).toLocaleDateString("pt-BR")}</Text>
         </View>
       </View>
 

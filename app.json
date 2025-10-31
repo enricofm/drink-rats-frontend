@@ -29,6 +29,10 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": ["expo-router"],
-    "scheme": "drinkrats"
+    "scheme": "drinkrats",
+    "extra": {
+      "apiBaseUrl": "${API_BASE_URL}",
+      "useMockData": "${USE_MOCK_DATA}"
+    }
   }
 }

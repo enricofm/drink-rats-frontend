@@ -1,5 +1,7 @@
 "use client"
 import { View, Text, StyleSheet, ScrollView, Image, ActivityIndicator, Alert } from "react-native"
+import { Toast } from "@/components/Toast"
+import { useToast } from "@/hooks/useToast"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { StarRating } from "@/components/StarRating"
 import { Button } from "@/components/Button"
@@ -14,21 +16,23 @@ export default function PostDetailScreen() {
   const { user } = useAuth()
   const { data: post, isLoading, error } = usePost(id)
   const { deletePost, isDeleting } = usePosts()
+  const { toast, showToast, hideToast } = useToast()
 
   const isOwner = post?.userId === user?.id
 
   const handleDelete = () => {
-    Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert("Excluir Post", "Tem certeza que deseja excluir este post?", [
+      { text: "Cancelar", style: "cancel" },
       {
-        text: "Delete",
+        text: "Excluir",
         style: "destructive",
         onPress: async () => {
           try {
             await deletePost(id)
-            router.back()
+            showToast('Post excluído com sucesso!', 'success')
+            setTimeout(() => router.back(), 500)
           } catch (error) {
-            Alert.alert("Error", "Failed to delete post")
+            showToast('Erro ao excluir post', 'error')
           }
         },
       },
@@ -46,7 +50,7 @@ export default function PostDetailScreen() {
   if (error || !post) {
     return (
       <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>Failed to load post</Text>
+        <Text style={styles.errorText}>Falha ao carregar post</Text>
       </View>
     )
   }
@@ -72,7 +76,7 @@ export default function PostDetailScreen() {
           <View style={styles.headerText}>
             <Text style={styles.userName}>{post.userName}</Text>
             <Text style={styles.timestamp}>
-              {new Date(post.createdAt).toLocaleDateString("en-US", {
+              {new Date(post.createdAt).toLocaleDateString("pt-BR", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -86,12 +90,12 @@ export default function PostDetailScreen() {
 
         <View style={styles.ratingContainer}>
           <StarRating rating={post.rating} readonly size={28} />
-          <Text style={styles.ratingText}>{post.rating} out of 5 stars</Text>
+          <Text style={styles.ratingText}>{post.rating} de 5 estrelas</Text>
         </View>
 
         {post.notes && (
           <View style={styles.notesContainer}>
-            <Text style={styles.notesLabel}>Notes</Text>
+            <Text style={styles.notesLabel}>Notas</Text>
             <Text style={styles.notes}>{post.notes}</Text>
           </View>
         )}
@@ -99,13 +103,13 @@ export default function PostDetailScreen() {
         {isOwner && (
           <View style={styles.actions}>
             <Button
-              title="Edit"
+              title="Editar"
               onPress={() => router.push(`/edit-post/${post.id}`)}
               variant="primary"
               style={styles.actionButton}
             />
             <Button
-              title="Delete"
+              title="Excluir"
               onPress={handleDelete}
               loading={isDeleting}
               variant="outline"
@@ -114,6 +118,12 @@ export default function PostDetailScreen() {
           </View>
         )}
       </View>
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        visible={toast.visible}
+        onHide={hideToast}
+      />
     </ScrollView>
   )
 }

@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-// __DEV__ é uma variável global no React Native
+
 import type {
   User,
   BeerPost,
@@ -12,9 +12,10 @@ import type {
 } from '@/types';
 
 const API_BASE_URL =
-  Constants.expoConfig?.extra?.apiBaseUrl || 'https://api.drinkrats.app';
+  Constants.expoConfig?.extra?.apiBaseUrl || 'http://10.0.2.2:3000';
 const USE_MOCK_DATA =
-  __DEV__ || Constants.expoConfig?.extra?.useMockData === 'true';
+  Constants.expoConfig?.extra?.useMockData === 'true';
+
 
 // Dados mock para desenvolvimento
 const mockUser: User = {
@@ -31,7 +32,7 @@ const mockPosts: BeerPost[] = [
     userId: '1',
     userName: 'Amante de Cerveja',
     userAvatar: 'https://i.pravatar.cc/150?img=12',
-    beerName: 'IPA Turva',
+    beerName: 'American IPA',
     place: 'Cervejaria Local',
     rating: 5,
     notes: 'Notas cítricas incríveis com um final suave!',
@@ -61,14 +62,16 @@ class ApiService {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    
     if (USE_MOCK_DATA) {
-      // Simula atraso de rede
       await new Promise((resolve) => setTimeout(resolve, 500));
       return this.mockRequest<T>(endpoint, options);
     }
 
+    const url = `${API_BASE_URL}${endpoint}`;
+    
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const response = await fetch(url, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
@@ -77,16 +80,34 @@ class ApiService {
       });
 
       if (!response.ok) {
-        throw new Error(`Erro da API: ${response.statusText}`);
+        const errorBody = await response.text();
+        console.error('  ❌ API Error Response:', errorBody);
+        
+        
+        if (response.status === 401) {
+          console.warn('  🔐 Token inválido - considere fazer logout/login novamente');
+        }
+        
+       
+        const apiError = new Error(`Erro da API (${response.status}): ${response.statusText || errorBody}`);
+        (apiError as any).status = response.status;
+        (apiError as any).isApiError = true;
+        throw apiError;
       }
 
       return response.json();
-    } catch (error) {
+    } catch (error: any) {
+  
+      if (error.isApiError) {
+        console.error('  ❌ API Error - não fazendo fallback:', error.message);
+        throw error;
+      }
+    
+      console.error('  ❌ Network request failed:', error);
       console.warn(
-        '[v0] Falha na requisição de rede, voltando para dados mock:',
+        'Falha na requisição de rede, voltando para dados mock:',
         error
       );
-      // Fallback para mock se a rede falhar
       await new Promise((resolve) => setTimeout(resolve, 500));
       return this.mockRequest<T>(endpoint, options);
     }

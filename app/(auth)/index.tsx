@@ -59,28 +59,28 @@ export default function WelcomeScreen() {
       >
         <View style={styles.header}>
           <Text style={styles.title}>DrinkRats</Text>
-          <Text style={styles.subtitle}>Track your beer journey</Text>
+          <Text style={styles.subtitle}>Registre sua jornada cervejeira</Text>
           <Text style={styles.description}>
-            Discover, rate, and remember every beer you try
+            Descubra, avalie e lembre-se de cada cerveja que experimentar
           </Text>
         </View>
 
         <View style={styles.buttonContainer}>
           <Button
-            title="Log in"
+            title="Entrar"
             onPress={() => router.push('/login')}
             fullWidth
             variant="primary"
-            accessibilityLabel="Navigate to login screen"
+            accessibilityLabel="Ir para tela de login"
           />
 
           <Button
-            title="Sign up"
+            title="Criar Conta"
             onPress={() => router.push('/register')}
             fullWidth
             variant="outline"
             style={styles.signupButton}
-            accessibilityLabel="Navigate to sign up screen"
+            accessibilityLabel="Ir para tela de cadastro"
           />
         </View>
       </Animated.View>

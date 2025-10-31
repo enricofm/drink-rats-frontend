@@ -22,6 +22,8 @@ import { StarRating } from '@/components/StarRating';
 import { usePost, usePosts } from '@/hooks/usePosts';
 import { validateBeerPostForm } from '@/utils/validation';
 import { theme } from '@/theme/theme';
+import { Toast } from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
 
 export default function EditPostScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -35,6 +37,7 @@ export default function EditPostScreen() {
   const [notes, setNotes] = useState('');
   const [imageUri, setImageUri] = useState<string>();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { toast, showToast, hideToast } = useToast();
 
   useEffect(() => {
     if (post) {
@@ -53,7 +56,7 @@ export default function EditPostScreen() {
       if (source === 'camera') {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== 'granted') {
-          Alert.alert('Permission needed', 'Please grant camera access');
+          showToast('Permissão necessária para usar a câmera', 'warning');
           return;
         }
 
@@ -66,7 +69,7 @@ export default function EditPostScreen() {
         const { status } =
           await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
-          Alert.alert('Permission needed', 'Please grant photo library access');
+          showToast('Permissão necessária para acessar a galeria', 'warning');
           return;
         }
 
@@ -89,25 +92,25 @@ export default function EditPostScreen() {
       }
     } catch (err) {
       console.warn('Erro ao selecionar imagem', err);
-      Alert.alert('Error', 'Could not select image.');
+      showToast('Não foi possível selecionar a imagem', 'error');
     }
   };
 
   const showImagePicker = () => {
-    Alert.alert('Select Image', 'Choose an option', [
+    Alert.alert('Selecionar Imagem', 'Escolha uma opção', [
       {
-        text: 'Take Photo',
+        text: 'Tirar Foto',
         onPress: () => {
           void handlePickImage('camera');
         },
       },
       {
-        text: 'Choose from Library',
+        text: 'Escolher da Galeria',
         onPress: () => {
           void handlePickImage('library');
         },
       },
-      { text: 'Cancel', style: 'cancel' },
+      { text: 'Cancelar', style: 'cancel' },
     ]);
   };
 
@@ -128,13 +131,12 @@ export default function EditPostScreen() {
         notes,
         imageUri: imageUri!,
       });
-      router.back();
+      showToast('Post atualizado com sucesso!', 'success');
+      setTimeout(() => router.back(), 500);
     } catch (error: unknown) {
       console.error('Error updating post:', error);
-      Alert.alert(
-        'Error',
-        error instanceof Error ? error.message : 'Failed to update post'
-      );
+      const message = error instanceof Error ? error.message : 'Erro ao atualizar post';
+      showToast(message, 'error');
     }
   };
 
@@ -160,7 +162,7 @@ export default function EditPostScreen() {
           onPress={showImagePicker}
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Change beer photo"
+          accessibilityLabel="Alterar foto da cerveja"
         >
           {imageUri ? (
             <Image source={{ uri: imageUri }} style={styles.image} />
@@ -171,36 +173,36 @@ export default function EditPostScreen() {
                 size={48}
                 color={theme.colors.textMuted}
               />
-              <Text style={styles.imagePlaceholderText}>Change Photo</Text>
+              <Text style={styles.imagePlaceholderText}>Alterar Foto</Text>
             </View>
           )}
         </TouchableOpacity>
         {!!errors.image && <Text style={styles.error}>{errors.image}</Text>}
 
         <Input
-          label="Beer Name"
+          label="Nome da Cerveja"
           value={beerName}
           onChangeText={(text) => {
             setBeerName(text);
             setErrors((prev) => ({ ...prev, beerName: '' }));
           }}
           error={errors.beerName}
-          placeholder="e.g., Hazy IPA"
+          placeholder="ex: American IPA"
         />
 
         <Input
-          label="Place"
+          label="Local"
           value={place}
           onChangeText={(text) => {
             setPlace(text);
             setErrors((prev) => ({ ...prev, place: '' }));
           }}
           error={errors.place}
-          placeholder="e.g., Local Brewery"
+          placeholder="ex: Cervejaria Local"
         />
 
         <View style={styles.ratingContainer}>
-          <Text style={styles.label}>Rating</Text>
+          <Text style={styles.label}>Avaliação</Text>
           <StarRating
             rating={rating}
             onRatingChange={(value) => {
@@ -212,23 +214,29 @@ export default function EditPostScreen() {
         </View>
 
         <Input
-          label="Notes (Optional)"
+          label="Notas (Opcional)"
           value={notes}
           onChangeText={setNotes}
-          placeholder="Share your thoughts..."
+          placeholder="Compartilhe suas impressões..."
           multiline
           numberOfLines={4}
           style={styles.notesInput}
         />
 
         <Button
-          title="Update Post"
+          title="Atualizar Post"
           onPress={handleSubmit}
           loading={isUpdating}
           fullWidth
           variant="primary"
         />
       </ScrollView>
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        visible={toast.visible}
+        onHide={hideToast}
+      />
     </KeyboardAvoidingView>
   );
 }

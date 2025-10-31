@@ -5,58 +5,58 @@ export interface ValidationResult {
 
 export const validateEmail = (email: string): string | null => {
   if (!email) {
-    return "Email is required"
+    return "Email é obrigatório"
   }
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(email)) {
-    return "Please enter a valid email address"
+    return "Digite um email válido"
   }
   return null
 }
 
 export const validatePassword = (password: string): string | null => {
   if (!password) {
-    return "Password is required"
+    return "Senha é obrigatória"
   }
   if (password.length < 6) {
-    return "Password must be at least 6 characters"
+    return "A senha deve ter pelo menos 6 caracteres"
   }
   return null
 }
 
 export const validateName = (name: string): string | null => {
   if (!name) {
-    return "Name is required"
+    return "Nome é obrigatório"
   }
   if (name.length < 2) {
-    return "Name must be at least 2 characters"
+    return "O nome deve ter pelo menos 2 caracteres"
   }
   return null
 }
 
 export const validateBeerName = (beerName: string): string | null => {
   if (!beerName) {
-    return "Beer name is required"
+    return "Nome da cerveja é obrigatório"
   }
   if (beerName.length < 2) {
-    return "Beer name must be at least 2 characters"
+    return "O nome da cerveja deve ter pelo menos 2 caracteres"
   }
   return null
 }
 
 export const validatePlace = (place: string): string | null => {
   if (!place) {
-    return "Place is required"
+    return "Local é obrigatório"
   }
   if (place.length < 2) {
-    return "Place must be at least 2 characters"
+    return "O local deve ter pelo menos 2 caracteres"
   }
   return null
 }
 
 export const validateRating = (rating: number): string | null => {
   if (rating < 1 || rating > 5) {
-    return "Rating must be between 1 and 5"
+    return "A avaliação deve estar entre 1 e 5"
   }
   return null
 }
@@ -112,7 +112,7 @@ export const validateBeerPostForm = (
   if (ratingError) errors.rating = ratingError
 
   if (!imageUri) {
-    errors.image = "Please select an image"
+    errors.image = "Por favor, selecione uma imagem"
   }
 
   return {

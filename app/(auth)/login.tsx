@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Input } from '@/components/Input';
@@ -16,6 +15,8 @@ import { Button } from '@/components/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { validateLoginForm } from '@/utils/validation';
 import { theme } from '@/theme/theme';
+import { Toast } from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const { toast, showToast, hideToast } = useToast();
 
   const handleLogin = async () => {
     const validation = validateLoginForm(email, password);
@@ -38,11 +40,23 @@ export default function LoginScreen() {
 
     try {
       await login(email, password);
-      router.replace('/(tabs)');
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : 'Invalid email or password';
-      Alert.alert('Login Failed', message);
+      showToast('Login realizado com sucesso!', 'success');
+      setTimeout(() => router.replace('/(tabs)'), 500);
+    } catch (error: any) {
+      let message = 'Email ou senha inválidos';
+      
+      // Parse error message from backend
+      if (error?.message) {
+        if (error.message.includes('401')) {
+          message = 'Email ou senha incorretos';
+        } else if (error.message.includes('404')) {
+          message = 'Usuário não encontrado';
+        } else if (error.message.includes('500')) {
+          message = 'Erro no servidor. Tente novamente mais tarde';
+        }
+      }
+      
+      showToast(message, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +73,7 @@ export default function LoginScreen() {
       >
         <View style={styles.wrapper}>
           <Text style={styles.title}>DrinkRats</Text>
-          <Text style={styles.subtitle}>Track your beer journey</Text>
+          <Text style={styles.subtitle}>Registre sua jornada cervejeira</Text>
 
           <View style={styles.card}>
             <View style={styles.form}>
@@ -75,12 +89,12 @@ export default function LoginScreen() {
                 autoCapitalize="none"
                 autoComplete="email"
                 textContentType="emailAddress"
-                placeholder="your@email.com"
-                accessibilityLabel="Email input"
+                placeholder="seu@email.com"
+                accessibilityLabel="Campo de email"
               />
 
               <Input
-                label="Password"
+                label="Senha"
                 value={password}
                 onChangeText={(text) => {
                   setPassword(text);
@@ -92,11 +106,11 @@ export default function LoginScreen() {
                 autoComplete="password"
                 textContentType="password"
                 placeholder="••••••••"
-                accessibilityLabel="Password input"
+                accessibilityLabel="Campo de senha"
               />
 
               <Button
-                title="Log In"
+                title="Entrar"
                 onPress={handleLogin}
                 loading={isLoading}
                 fullWidth
@@ -104,7 +118,7 @@ export default function LoginScreen() {
               />
 
               <Button
-                title="Create Account"
+                title="Criar Conta"
                 onPress={() => router.push('/register')}
                 fullWidth
                 variant="outline"
@@ -114,6 +128,12 @@ export default function LoginScreen() {
           </View>
         </View>
       </ScrollView>
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        visible={toast.visible}
+        onHide={hideToast}
+      />
     </KeyboardAvoidingView>
   );
 }

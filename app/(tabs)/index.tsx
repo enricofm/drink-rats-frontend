@@ -20,7 +20,7 @@ export default function FeedScreen() {
   if (error) {
     return (
       <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>Failed to load posts</Text>
+        <Text style={styles.errorText}>Falha ao carregar posts</Text>
       </View>
     );
   }
@@ -46,9 +46,9 @@ export default function FeedScreen() {
                 size={64}
                 color={theme.colors.textMuted}
               />
-              <Text style={styles.emptyText}>No beer posts yet</Text>
+              <Text style={styles.emptyText}>Nenhum post ainda</Text>
               <Text style={styles.emptySubtext}>
-                Start logging your beer adventures!
+                Comece a registrar suas aventuras cervejeiras!
               </Text>
             </View>
           )
@@ -60,7 +60,7 @@ export default function FeedScreen() {
         onPress={() => router.push('/create-post')}
         accessible
         accessibilityRole="button"
-        accessibilityLabel="Create new beer post"
+        accessibilityLabel="Criar novo post"
       >
         <Ionicons name="add" size={32} color={theme.colors.white} />
       </TouchableOpacity>
