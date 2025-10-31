@@ -119,7 +119,7 @@ export default function LoginScreen() {
                 title="Criar Conta"
                 onPress={() => router.push('/register')}
                 fullWidth
-                variant="outline"
+                variant="transparent"
                 style={styles.registerButton}
               />
           </View>

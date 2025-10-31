@@ -10,7 +10,7 @@ import { theme } from '@/theme/theme';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'transparent';
   loading?: boolean;
   fullWidth?: boolean;
 }
@@ -28,7 +28,7 @@ export const Button: React.FC<ButtonProps> = ({
     styles.button,
     variant === 'primary' && styles.primaryButton,
     variant === 'secondary' && styles.secondaryButton,
-    variant === 'outline' && styles.outlineButton,
+    variant === 'transparent' && styles.transparentButton,
     fullWidth && styles.fullWidth,
     (disabled || loading) && styles.disabled,
     style,
@@ -38,7 +38,7 @@ export const Button: React.FC<ButtonProps> = ({
     styles.text,
     variant === 'primary' && styles.primaryText,
     variant === 'secondary' && styles.secondaryText,
-    variant === 'outline' && styles.outlineText,
+    variant === 'transparent' && styles.transparentText,
   ];
 
   return (
@@ -71,10 +71,8 @@ const styles = StyleSheet.create({
   secondaryButton: {
     backgroundColor: theme.colors.secondary,
   },
-  outlineButton: {
+  transparentButton: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: theme.colors.primary,
   },
   fullWidth: {
     width: '100%',
@@ -92,7 +90,7 @@ const styles = StyleSheet.create({
   secondaryText: {
     color: theme.colors.textPrimary,
   },
-  outlineText: {
+  transparentText: {
     color: theme.colors.primary,
   },
 });

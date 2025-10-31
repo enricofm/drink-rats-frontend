@@ -141,7 +141,7 @@ export default function RegisterScreen() {
               title="Voltar ao Login"
               onPress={() => router.back()}
               fullWidth
-              variant="outline"
+              variant="transparent"
               style={styles.backButton}
             />
           </View>
