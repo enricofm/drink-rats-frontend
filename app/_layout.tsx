@@ -56,7 +56,7 @@ function RootLayoutNav() {
       >
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="post/[id]" options={{ title: 'Post Details' }} />
+        <Stack.Screen name="post/[id]" options={{ title: 'Detalhes do post' }} />
         <Stack.Screen
           name="create-post"
           options={{ title: 'Novo post', presentation: 'modal' }}

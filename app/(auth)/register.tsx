@@ -8,15 +8,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { validateRegisterForm } from '@/utils/validation';
 import { theme } from '@/theme/theme';
-import { Toast } from '@/components/Toast';
-import { useToast } from '@/hooks/useToast';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -26,7 +26,6 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const { toast, showToast, hideToast } = useToast();
 
   const handleRegister = async () => {
     const validation = validateRegisterForm(name, email, password);
@@ -41,23 +40,11 @@ export default function RegisterScreen() {
 
     try {
       await register(name, email, password);
-      showToast('Conta criada com sucesso!', 'success');
-      setTimeout(() => router.replace('/(tabs)'), 500);
-    } catch (error: any) {
-      console.error('Registration error:', error);
-      let message = 'Erro ao criar conta. Tente novamente';
-      
-      if (error?.message) {
-        if (error.message.includes('409') || error.message.includes('já existe')) {
-          message = 'Este email já está cadastrado';
-        } else if (error.message.includes('400')) {
-          message = 'Dados inválidos. Verifique os campos';
-        } else if (error.message.includes('500')) {
-          message = 'Erro no servidor. Tente novamente mais tarde';
-        }
-      }
-      
-      showToast(message, 'error');
+      router.replace('/(tabs)');
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Erro ao criar conta';
+      Alert.alert('Registro falhou', message);
     } finally {
       setIsLoading(false);
     }
@@ -72,64 +59,82 @@ export default function RegisterScreen() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.content}>
-          <Text style={styles.title}>Criar Conta</Text>
-          <Text style={styles.subtitle}>Junte-se à comunidade DrinkRats</Text>
+        <View style={styles.wrapper}>
+          <Text style={styles.title}>DrinkRats</Text>
+          <Text style={styles.subtitle}>Junte-se à comunidade</Text>
 
           <View style={styles.form}>
-            <Input
-              label="Nome"
-              value={name}
-              onChangeText={(text) => {
-                setName(text);
-                setErrors((prev) => ({ ...prev, name: '' }));
-              }}
-              error={errors.name}
-              autoCapitalize="words"
-              autoComplete="name"
-              textContentType="name"
-              placeholder="Seu nome"
-              accessibilityLabel="Campo de nome"
-            />
+            <View>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="person-outline" size={20} color="#999" style={styles.icon} />
+                <Input
+                  value={name}
+                  onChangeText={(text) => {
+                    setName(text);
+                    setErrors((prev) => ({ ...prev, name: '' }));
+                  }}
+                  autoCapitalize="words"
+                  autoComplete="name"
+                  textContentType="name"
+                  placeholder="Nome"
+                  accessibilityLabel="Campo de nome"
+                  style={styles.inputWithIcon}
+                  containerStyle={styles.inputContainer}
+                />
+              </View>
+              {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+            </View>
 
-            <Input
-              label="Email"
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                setErrors((prev) => ({ ...prev, email: '' }));
-              }}
-              error={errors.email}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              textContentType="emailAddress"
-              placeholder="seu@email.com"
-              accessibilityLabel="Campo de email"
-            />
+            <View>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="mail-outline" size={20} color="#999" style={styles.icon} />
+                <Input
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    setErrors((prev) => ({ ...prev, email: '' }));
+                  }}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  textContentType="emailAddress"
+                  placeholder="E-mail"
+                  accessibilityLabel="Campo de e-mail"
+                  style={styles.inputWithIcon}
+                  containerStyle={styles.inputContainer}
+                />
+              </View>
+              {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            </View>
 
-            <Input
-              label="Senha"
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                setErrors((prev) => ({ ...prev, password: '' }));
-              }}
-              error={errors.password}
-              secureTextEntry
-              autoCapitalize="none"
-              autoComplete="password"
-              textContentType="newPassword"
-              placeholder="••••••••"
-              accessibilityLabel="Campo de senha"
-            />
+            <View>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="lock-closed-outline" size={20} color="#999" style={styles.icon} />
+                <Input
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    setErrors((prev) => ({ ...prev, password: '' }));
+                  }}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoComplete="password"
+                  textContentType="newPassword"
+                  placeholder="Senha"
+                  accessibilityLabel="Campo de senha"
+                  style={styles.inputWithIcon}
+                  containerStyle={styles.inputContainer}
+                />
+              </View>
+              {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+            </View>
 
             <Button
               title="Criar Conta"
               onPress={handleRegister}
               loading={isLoading}
               fullWidth
-              variant="primary"
+              style={styles.registerButton}
             />
 
             <Button
@@ -142,12 +147,6 @@ export default function RegisterScreen() {
           </View>
         </View>
       </ScrollView>
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        visible={toast.visible}
-        onHide={hideToast}
-      />
     </KeyboardAvoidingView>
   );
 }
@@ -160,29 +159,66 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
+    padding: theme.spacing.lg,
   },
-  content: {
-    padding: theme.spacing.xl,
+  wrapper: {
+    alignItems: 'center',
   },
   title: {
-    fontSize: theme.fontSize.xxl,
-    fontWeight: theme.fontWeight.bold,
+    fontSize: 36,
+    fontWeight: '900',
     color: theme.colors.white,
     textAlign: 'center',
-    marginBottom: theme.spacing.xs,
+    marginBottom: theme.spacing.sm,
   },
   subtitle: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.white,
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.secondary,
     textAlign: 'center',
-    marginBottom: theme.spacing.xxl,
-    opacity: 0.9,
+    marginBottom: theme.spacing.xl,
   },
   form: {
+    width: '100%',
     gap: theme.spacing.md,
   },
+  inputWrapper: {
+    position: 'relative',
+    width: '100%',
+  },
+  inputContainer: {
+    marginBottom: 0,
+  },
+  icon: {
+    position: 'absolute',
+    left: 16,
+    top: '50%',
+    transform: [{ translateY: -10 }],
+    zIndex: 1,
+  },
+  inputWithIcon: {
+    backgroundColor: '#ffffff',
+    paddingLeft: 48,
+    paddingRight: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 0,
+    height: 52,
+    color: '#000000',
+  },
+  errorText: {
+    fontSize: 12,
+    color: theme.colors.error,
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  registerButton: {
+    borderRadius: 12,
+    paddingVertical: 14,
+  },
   backButton: {
-    marginTop: theme.spacing.sm,
-    borderColor: theme.colors.white,
+    marginTop: theme.spacing.md,
+    borderRadius: 12,
+    paddingVertical: 14,
   },
 });
