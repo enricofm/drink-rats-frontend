@@ -13,7 +13,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.textMuted,
         tabBarStyle: {
-          height: isIOS ? 92 : 80, // taller bar
+          height: isIOS ? 92 : 80,
           borderRadius: 24,
           backgroundColor: theme.colors.cardBackground,
           borderTopWidth: 0,
@@ -48,7 +48,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'home' : 'home-outline'}
-              size={30} // slightly larger icon
+              size={30}
               color={color}
             />
           ),
