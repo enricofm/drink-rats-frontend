@@ -59,11 +59,11 @@ function RootLayoutNav() {
         <Stack.Screen name="post/[id]" options={{ title: 'Post Details' }} />
         <Stack.Screen
           name="create-post"
-          options={{ title: 'New Beer Post', presentation: 'modal' }}
+          options={{ title: 'Novo post', presentation: 'modal' }}
         />
         <Stack.Screen
           name="edit-post/[id]"
-          options={{ title: 'Edit Post', presentation: 'modal' }}
+          options={{ title: 'Editar post', presentation: 'modal' }}
         />
       </Stack>
     </>

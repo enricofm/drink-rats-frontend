@@ -8,15 +8,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { validateLoginForm } from '@/utils/validation';
 import { theme } from '@/theme/theme';
-import { Toast } from '@/components/Toast';
-import { useToast } from '@/hooks/useToast';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -25,7 +25,6 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const { toast, showToast, hideToast } = useToast();
 
   const handleLogin = async () => {
     const validation = validateLoginForm(email, password);
@@ -40,23 +39,11 @@ export default function LoginScreen() {
 
     try {
       await login(email, password);
-      showToast('Login realizado com sucesso!', 'success');
-      setTimeout(() => router.replace('/(tabs)'), 500);
-    } catch (error: any) {
-      let message = 'Email ou senha inválidos';
-      
-      // Parse error message from backend
-      if (error?.message) {
-        if (error.message.includes('401')) {
-          message = 'Email ou senha incorretos';
-        } else if (error.message.includes('404')) {
-          message = 'Usuário não encontrado';
-        } else if (error.message.includes('500')) {
-          message = 'Erro no servidor. Tente novamente mais tarde';
-        }
-      }
-      
-      showToast(message, 'error');
+      router.replace('/(tabs)');
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Email ou senha inválidos';
+      Alert.alert('Login falhou', message);
     } finally {
       setIsLoading(false);
     }
@@ -73,41 +60,52 @@ export default function LoginScreen() {
       >
         <View style={styles.wrapper}>
           <Text style={styles.title}>DrinkRats</Text>
-          <Text style={styles.subtitle}>Registre sua jornada cervejeira</Text>
+          <Text style={styles.subtitle}>Acompanhe sua jornada cervejeira</Text>
 
-          <View style={styles.card}>
-            <View style={styles.form}>
-              <Input
-                label="Email"
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  setErrors((prev) => ({ ...prev, email: '' }));
-                }}
-                error={errors.email}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-                textContentType="emailAddress"
-                placeholder="seu@email.com"
-                accessibilityLabel="Campo de email"
-              />
+          <View style={styles.form}>
+              <View>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="mail-outline" size={20} color="#999" style={styles.icon} />
+                  <Input
+                    value={email}
+                    onChangeText={(text) => {
+                      setEmail(text);
+                      setErrors((prev) => ({ ...prev, email: '' }));
+                    }}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    textContentType="emailAddress"
+                    placeholder="E-mail"
+                    accessibilityLabel="Campo de e-mail"
+                    style={styles.inputWithIcon}
+                    containerStyle={styles.inputContainer}
+                  />
+                </View>
+                {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+              </View>
 
-              <Input
-                label="Senha"
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  setErrors((prev) => ({ ...prev, password: '' }));
-                }}
-                error={errors.password}
-                secureTextEntry
-                autoCapitalize="none"
-                autoComplete="password"
-                textContentType="password"
-                placeholder="••••••••"
-                accessibilityLabel="Campo de senha"
-              />
+              <View>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="lock-closed-outline" size={20} color="#999" style={styles.icon} />
+                  <Input
+                    value={password}
+                    onChangeText={(text) => {
+                      setPassword(text);
+                      setErrors((prev) => ({ ...prev, password: '' }));
+                    }}
+                    secureTextEntry
+                    autoCapitalize="none"
+                    autoComplete="password"
+                    textContentType="password"
+                    placeholder="Senha"
+                    accessibilityLabel="Campo de senha"
+                    style={styles.inputWithIcon}
+                    containerStyle={styles.inputContainer}
+                  />
+                </View>
+                {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+              </View>
 
               <Button
                 title="Entrar"
@@ -124,16 +122,9 @@ export default function LoginScreen() {
                 variant="outline"
                 style={styles.registerButton}
               />
-            </View>
           </View>
         </View>
       </ScrollView>
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        visible={toast.visible}
-        onHide={hideToast}
-      />
     </KeyboardAvoidingView>
   );
 }
@@ -154,29 +145,50 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 36,
     fontWeight: '900',
-    color: theme.colors.primary,
+    color: theme.colors.white,
     textAlign: 'center',
     marginBottom: theme.spacing.sm,
   },
   subtitle: {
     fontSize: 16,
+    fontWeight: '600',
     color: theme.colors.secondary,
     textAlign: 'center',
     marginBottom: theme.spacing.xl,
   },
-  card: {
-    width: '100%',
-    padding: theme.spacing.lg,
-    borderRadius: 16,
-    backgroundColor: theme.colors.cardBackground,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 6,
-  },
   form: {
+    width: '100%',
     gap: theme.spacing.md,
+  },
+  inputWrapper: {
+    position: 'relative',
+    width: '100%',
+  },
+  inputContainer: {
+    marginBottom: 0,
+  },
+  icon: {
+    position: 'absolute',
+    left: 16,
+    top: '50%',
+    transform: [{ translateY: -10 }],
+    zIndex: 1,
+  },
+  inputWithIcon: {
+    backgroundColor: '#ffffff',
+    paddingLeft: 48,
+    paddingRight: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 0,
+    height: 52,
+    color: '#000000',
+  },
+  errorText: {
+    fontSize: 12,
+    color: theme.colors.error,
+    marginTop: 4,
+    marginLeft: 4,
   },
   loginButton: {
     borderRadius: 12,
@@ -184,7 +196,6 @@ const styles = StyleSheet.create({
   },
   registerButton: {
     marginTop: theme.spacing.md,
-    borderColor: theme.colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
   },

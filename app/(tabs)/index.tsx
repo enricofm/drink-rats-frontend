@@ -60,7 +60,7 @@ export default function FeedScreen() {
         onPress={() => router.push('/create-post')}
         accessible
         accessibilityRole="button"
-        accessibilityLabel="Criar novo post"
+        accessibilityLabel="Criar novo post de cerveja"
       >
         <Ionicons name="add" size={32} color={theme.colors.white} />
       </TouchableOpacity>
