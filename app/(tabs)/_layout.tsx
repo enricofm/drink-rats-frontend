@@ -14,7 +14,6 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: theme.colors.textMuted,
         tabBarStyle: {
           height: isIOS ? 92 : 80,
-          borderRadius: 24,
           backgroundColor: theme.colors.cardBackground,
           borderTopWidth: 0,
           paddingTop: 10,
@@ -48,6 +47,19 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'home' : 'home-outline'}
+              size={28}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="friends"
+        options={{
+          title: '',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'search' : 'search-outline'}
               size={28}
               color={color}
             />

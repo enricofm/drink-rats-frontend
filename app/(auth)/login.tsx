@@ -63,65 +63,79 @@ export default function LoginScreen() {
           <Text style={styles.subtitle}>Acompanhe sua jornada cervejeira</Text>
 
           <View style={styles.form}>
-              <View>
-                <View style={styles.inputWrapper}>
-                  <Ionicons name="mail-outline" size={20} color="#999" style={styles.icon} />
-                  <Input
-                    value={email}
-                    onChangeText={(text) => {
-                      setEmail(text);
-                      setErrors((prev) => ({ ...prev, email: '' }));
-                    }}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoComplete="email"
-                    textContentType="emailAddress"
-                    placeholder="E-mail"
-                    accessibilityLabel="Campo de e-mail"
-                    style={styles.inputWithIcon}
-                    containerStyle={styles.inputContainer}
-                  />
-                </View>
-                {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            <View>
+              <View style={styles.inputWrapper}>
+                <Ionicons
+                  name="mail-outline"
+                  size={20}
+                  color="#999"
+                  style={styles.icon}
+                />
+                <Input
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    setErrors((prev) => ({ ...prev, email: '' }));
+                  }}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  textContentType="emailAddress"
+                  placeholder="E-mail"
+                  accessibilityLabel="Campo de e-mail"
+                  style={styles.inputWithIcon}
+                  containerStyle={styles.inputContainer}
+                />
               </View>
+              {!!errors.email && (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              )}
+            </View>
 
-              <View>
-                <View style={styles.inputWrapper}>
-                  <Ionicons name="lock-closed-outline" size={20} color="#999" style={styles.icon} />
-                  <Input
-                    value={password}
-                    onChangeText={(text) => {
-                      setPassword(text);
-                      setErrors((prev) => ({ ...prev, password: '' }));
-                    }}
-                    secureTextEntry
-                    autoCapitalize="none"
-                    autoComplete="password"
-                    textContentType="password"
-                    placeholder="Senha"
-                    accessibilityLabel="Campo de senha"
-                    style={styles.inputWithIcon}
-                    containerStyle={styles.inputContainer}
-                  />
-                </View>
-                {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+            <View>
+              <View style={styles.inputWrapper}>
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color="#999"
+                  style={styles.icon}
+                />
+                <Input
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    setErrors((prev) => ({ ...prev, password: '' }));
+                  }}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoComplete="password"
+                  textContentType="password"
+                  placeholder="Senha"
+                  accessibilityLabel="Campo de senha"
+                  style={styles.inputWithIcon}
+                  containerStyle={styles.inputContainer}
+                />
               </View>
+              {!!errors.password && (
+                <Text style={styles.errorText}>{errors.password}</Text>
+              )}
+            </View>
 
-              <Button
-                title="Entrar"
-                onPress={handleLogin}
-                loading={isLoading}
-                fullWidth
-                style={styles.loginButton}
-              />
+            <Button
+              title="Entrar"
+              onPress={handleLogin}
+              loading={isLoading}
+              fullWidth
+              style={styles.loginButton}
+            />
 
-              <Button
-                title="Criar Conta"
-                onPress={() => router.push('/register')}
-                fullWidth
-                variant="transparent"
-                style={styles.registerButton}
-              />
+            <Button
+              title="Criar Conta"
+              onPress={() => router.push('/register')}
+              fullWidth
+              variant="transparent"
+              style={styles.registerButton}
+            />
           </View>
         </View>
       </ScrollView>

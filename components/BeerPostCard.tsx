@@ -1,22 +1,23 @@
-"use client"
+'use client';
 
-import type React from "react"
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native"
-import { useRouter } from "expo-router"
-import { StarRating } from "./StarRating"
-import { theme } from "@/theme/theme"
-import type { BeerPost } from "@/types"
+import type React from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { StarRating } from './StarRating';
+import { theme } from '@/theme/theme';
+import type { BeerPost } from '@/types';
+import { Ionicons } from '@expo/vector-icons';
 
 interface BeerPostCardProps {
-  post: BeerPost
+  post: BeerPost;
 }
 
 export const BeerPostCard: React.FC<BeerPostCardProps> = ({ post }) => {
-  const router = useRouter()
+  const router = useRouter();
 
   const handlePress = () => {
-    router.push(`/post/${post.id}`)
-  }
+    router.push(`/post/${post.id}`);
+  };
 
   return (
     <TouchableOpacity
@@ -27,15 +28,23 @@ export const BeerPostCard: React.FC<BeerPostCardProps> = ({ post }) => {
       accessibilityLabel={`Beer post: ${post.beerName} at ${post.place}, rated ${post.rating} stars`}
     >
       <View style={styles.header}>
-        <Image
-          source={{ uri: post.userAvatar || "https://i.pravatar.cc/150" }}
-          style={styles.avatar}
-          accessible
-          accessibilityLabel={`${post.userName}'s avatar`}
-        />
+        {post.userAvatar ? (
+          <Image
+            source={{ uri: post.userAvatar }}
+            style={styles.avatar}
+            accessible
+            accessibilityLabel={`${post.userName}'s avatar`}
+          />
+        ) : (
+          <View style={styles.avatarPlaceholder}>
+            <Ionicons name="person" size={20} color={theme.colors.white} />
+          </View>
+        )}
         <View style={styles.headerText}>
           <Text style={styles.userName}>{post.userName}</Text>
-          <Text style={styles.timestamp}>{new Date(post.createdAt).toLocaleDateString("pt-BR")}</Text>
+          <Text style={styles.timestamp}>
+            {new Date(post.createdAt).toLocaleDateString('pt-BR')}
+          </Text>
         </View>
       </View>
 
@@ -62,25 +71,34 @@ export const BeerPostCard: React.FC<BeerPostCardProps> = ({ post }) => {
         )}
       </View>
     </TouchableOpacity>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   card: {
     backgroundColor: theme.colors.cardBackground,
     borderRadius: theme.borderRadius.lg,
     marginBottom: theme.spacing.md,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: theme.spacing.md,
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: theme.borderRadius.full,
+    marginRight: theme.spacing.sm,
+  },
+  avatarPlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: theme.spacing.sm,
   },
   headerText: {
@@ -97,7 +115,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   image: {
-    width: "100%",
+    width: '100%',
     height: 300,
     backgroundColor: theme.colors.secondary,
   },
@@ -123,4 +141,4 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     lineHeight: 20,
   },
-})
+});

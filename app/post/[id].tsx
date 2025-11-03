@@ -1,50 +1,64 @@
-"use client"
-import { View, Text, StyleSheet, ScrollView, Image, ActivityIndicator, Alert } from "react-native"
-import { Toast } from "@/components/Toast"
-import { useToast } from "@/hooks/useToast"
-import { useLocalSearchParams, useRouter } from "expo-router"
-import { StarRating } from "@/components/StarRating"
-import { Button } from "@/components/Button"
-import { usePost } from "@/hooks/usePosts"
-import { usePosts } from "@/hooks/usePosts"
-import { useAuth } from "@/hooks/useAuth"
-import { theme } from "@/theme/theme"
+'use client';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import { Toast } from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StarRating } from '@/components/StarRating';
+import { Button } from '@/components/Button';
+import { usePost, usePosts } from '@/hooks/usePosts';
+import { useAuth } from '@/hooks/useAuth';
+import { theme } from '@/theme/theme';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function PostDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>()
-  const router = useRouter()
-  const { user } = useAuth()
-  const { data: post, isLoading, error } = usePost(id)
-  const { deletePost, isDeleting } = usePosts()
-  const { toast, showToast, hideToast } = useToast()
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const { user } = useAuth();
+  const { data: post, isLoading, error } = usePost(id);
+  const { deletePost, isDeleting } = usePosts();
+  const { toast, showToast, hideToast } = useToast();
 
-  const isOwner = post?.userId === user?.id
+  const isOwner = post?.userId === user?.id;
 
   const handleDelete = () => {
-    Alert.alert("Excluir Post", "Tem certeza que deseja excluir este post?", [
-      { text: "Cancelar", style: "cancel" },
+    Alert.alert('Excluir Post', 'Tem certeza que deseja excluir este post?', [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: "Excluir",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await deletePost(id)
-            showToast('Post excluído com sucesso!', 'success')
-            setTimeout(() => router.back(), 500)
-          } catch (error) {
-            showToast('Erro ao excluir post', 'error')
-          }
+        text: 'Excluir',
+        style: 'destructive',
+        onPress: () => {
+          (async () => {
+            try {
+              await deletePost(id);
+              showToast('Post excluído com sucesso!', 'success');
+              setTimeout(() => router.back(), 500);
+            } catch (error) {
+              console.error('Failed to delete post:', error);
+              showToast(
+                error instanceof Error ? error.message : 'Erro ao excluir post',
+                'error'
+              );
+            }
+          })();
         },
       },
-    ])
-  }
+    ]);
+  };
 
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
-    )
+    );
   }
 
   if (error || !post) {
@@ -52,7 +66,7 @@ export default function PostDetailScreen() {
       <View style={styles.centerContainer}>
         <Text style={styles.errorText}>Falha ao carregar post</Text>
       </View>
-    )
+    );
   }
 
   return (
@@ -67,19 +81,25 @@ export default function PostDetailScreen() {
 
       <View style={styles.content}>
         <View style={styles.header}>
-          <Image
-            source={{ uri: post.userAvatar || "https://i.pravatar.cc/150" }}
-            style={styles.avatar}
-            accessible
-            accessibilityLabel={`${post.userName}'s avatar`}
-          />
+          {post.userAvatar ? (
+            <Image
+              source={{ uri: post.userAvatar }}
+              style={styles.avatar}
+              accessible
+              accessibilityLabel={`${post.userName}'s avatar`}
+            />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <Ionicons name="person" size={24} color={theme.colors.white} />
+            </View>
+          )}
           <View style={styles.headerText}>
             <Text style={styles.userName}>{post.userName}</Text>
             <Text style={styles.timestamp}>
-              {new Date(post.createdAt).toLocaleDateString("pt-BR", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
+              {new Date(post.createdAt).toLocaleDateString('pt-BR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
               })}
             </Text>
           </View>
@@ -112,7 +132,7 @@ export default function PostDetailScreen() {
               title="Excluir"
               onPress={handleDelete}
               loading={isDeleting}
-              variant="outline"
+              variant="transparent"
               style={styles.actionButton}
             />
           </View>
@@ -125,7 +145,7 @@ export default function PostDetailScreen() {
         onHide={hideToast}
       />
     </ScrollView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -135,12 +155,12 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: theme.colors.appBackground,
   },
   image: {
-    width: "100%",
+    width: '100%',
     height: 400,
     backgroundColor: theme.colors.secondary,
   },
@@ -148,14 +168,23 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: theme.spacing.lg,
   },
   avatar: {
     width: 48,
     height: 48,
     borderRadius: theme.borderRadius.full,
+    marginRight: theme.spacing.sm,
+  },
+  avatarPlaceholder: {
+    width: 48,
+    height: 48,
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: theme.spacing.sm,
   },
   headerText: {
@@ -183,8 +212,8 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
   },
   ratingContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: theme.spacing.lg,
   },
   ratingText: {
@@ -207,7 +236,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   actions: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: theme.spacing.md,
     marginTop: theme.spacing.md,
   },
@@ -218,4 +247,4 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.md,
     color: theme.colors.error,
   },
-})
+});
