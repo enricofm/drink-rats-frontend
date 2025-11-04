@@ -62,7 +62,6 @@ export default function FriendsScreen() {
         )}
         <View style={styles.userInfo}>
           <Text style={styles.userName}>{item.name}</Text>
-          <Text style={styles.userEmail}>{item.email}</Text>
           <Text style={styles.status}>
             {item.friendshipStatus === 'friends'
               ? '✓ Amigo'
@@ -161,7 +160,7 @@ export default function FriendsScreen() {
             color={theme.colors.textMuted}
           />
           <Text style={styles.emptyText}>Nenhum usuário encontrado</Text>
-          <Text style={styles.emptySubtext}>Tente outro nome ou e-mail</Text>
+          <Text style={styles.emptySubtext}>Tente outro nome</Text>
         </View>
       ) : (
         <FlatList
@@ -238,11 +237,6 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.md,
     fontWeight: theme.fontWeight.semibold,
     color: theme.colors.textPrimary,
-  },
-  userEmail: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textMuted,
-    marginTop: theme.spacing.xs,
   },
   status: {
     fontSize: theme.fontSize.sm,

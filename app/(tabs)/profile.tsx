@@ -99,7 +99,6 @@ export default function ProfileScreen() {
       )}
       <View style={styles.friendInfo}>
         <Text style={styles.friendName}>{item.name}</Text>
-        <Text style={styles.friendEmail}>{item.email}</Text>
       </View>
     </View>
   );
@@ -173,7 +172,6 @@ export default function ProfileScreen() {
         ) : (
           <View style={styles.info}>
             <Text style={styles.name}>{user?.name}</Text>
-            <Text style={styles.email}>{user?.email}</Text>
 
             <Button
               title="Editar Perfil"
@@ -297,11 +295,6 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
     marginBottom: theme.spacing.xs,
   },
-  email: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.lg,
-  },
   editButton: {
     marginTop: theme.spacing.md,
   },
@@ -351,11 +344,6 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.md,
     fontWeight: theme.fontWeight.semibold,
     color: theme.colors.textPrimary,
-  },
-  friendEmail: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textMuted,
-    marginTop: theme.spacing.xs,
   },
   loader: {
     marginVertical: theme.spacing.lg,
